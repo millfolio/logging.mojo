@@ -1,5 +1,7 @@
 # logging.mojo
 
+> 💬 **Community:** questions, ideas, and show-and-tell live in [GitHub Discussions](https://github.com/millfolio/millfolio/discussions).
+
 Timestamped log lines for Mojo, **stamped at the moment of the call**.
 
 Every line is prefixed with the local wall-clock time `[HH:MM:SS.mmm]` computed
