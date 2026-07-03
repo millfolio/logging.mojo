@@ -30,7 +30,9 @@ def _pad3(n: Int) -> String:
 
 
 def timestamp() -> String:
-    """`HH:MM:SS.mmm` in local time, to the millisecond, for RIGHT NOW."""
+    """`YYYY-MM-DD HH:MM:SS.mmm` in local time, to the millisecond, for RIGHT NOW.
+    Full date + time so the log FILE is self-dated — no external timestamping
+    wrapper needed."""
     # struct timeval { time_t tv_sec (8B @0); suseconds_t tv_usec (4B @8) }.
     # Read as two 8-byte words: word 0 = tv_sec, low 32 bits of word 1 = tv_usec.
     var tv = stack_allocation[2, Int64]()
@@ -42,8 +44,9 @@ def timestamp() -> String:
     _ = external_call["gettimeofday", c_int](tv.bitcast[NoneType](), null)
     var usec = Int(tv[1]) & 0xFFFFFFFF
 
-    # localtime_r(const time_t *clock, struct tm *result). struct tm begins with
-    # int tm_sec, tm_min, tm_hour — the first three 32-bit fields are all we need.
+    # localtime_r(const time_t *clock, struct tm *result). struct tm's leading
+    # int fields are: tm_sec, tm_min, tm_hour, tm_mday, tm_mon (0-11), tm_year
+    # (years since 1900) — indices 0..5 of the Int32 view below.
     var t = stack_allocation[1, Int64]()
     t[0] = tv[0]
     var tm = stack_allocation[16, Int32]()  # 64B — struct tm is ~56B on macOS
@@ -55,8 +58,17 @@ def timestamp() -> String:
     var sec = Int(tm[0])
     var minute = Int(tm[1])
     var hour = Int(tm[2])
+    var day = Int(tm[3])
+    var month = Int(tm[4]) + 1  # tm_mon is 0-based
+    var year = Int(tm[5]) + 1900  # tm_year is years since 1900
     return (
-        _pad2(hour)
+        String(year)
+        + "-"
+        + _pad2(month)
+        + "-"
+        + _pad2(day)
+        + " "
+        + _pad2(hour)
         + ":"
         + _pad2(minute)
         + ":"
@@ -67,5 +79,5 @@ def timestamp() -> String:
 
 
 def log(msg: String):
-    """Print `msg` to stdout, prefixed with `[HH:MM:SS.mmm] ` stamped now."""
+    """Print `msg` to stdout, prefixed with `[YYYY-MM-DD HH:MM:SS.mmm] ` now."""
     print("[" + timestamp() + "] " + msg)

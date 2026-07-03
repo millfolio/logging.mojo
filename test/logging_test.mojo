@@ -19,14 +19,17 @@ def main() raises:
     _expect(_pad3(42) == "042", "_pad3(42)")
     _expect(_pad3(999) == "999", "_pad3(999)")
 
-    # `HH:MM:SS.mmm`: 12 bytes, "HH:MM:SS" splits on ':' into 3, ".mmm" tail.
+    # `YYYY-MM-DD HH:MM:SS.mmm`: 23 bytes; "HH:MM:SS" contributes 2 colons (→ 3
+    # parts), the ".mmm" tail one dot (→ 2 parts) with 3-digit millis.
     var ts = timestamp()
-    _expect(ts.byte_length() == 12, "timestamp length is 12 (got '" + ts + "')")
+    _expect(ts.byte_length() == 23, "timestamp length is 23 (got '" + ts + "')")
     var colon_parts = ts.split(":")
     _expect(len(colon_parts) == 3, "two colons in timestamp")
     var dot_parts = ts.split(".")
     _expect(len(dot_parts) == 2, "one dot in timestamp")
     _expect(String(dot_parts[1]).byte_length() == 3, "millis are 3 digits")
+    var dash_parts = ts.split("-")
+    _expect(len(dash_parts) == 3, "two dashes in the date")
 
     # log() should emit a prefixed line (visual confirmation).
     log("logging.mojo self-test line")
