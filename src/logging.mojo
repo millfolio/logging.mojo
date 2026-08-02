@@ -36,31 +36,33 @@ def timestamp() -> String:
     # struct timeval { time_t tv_sec (8B @0); suseconds_t tv_usec (4B @8) }.
     # Read as two 8-byte words: word 0 = tv_sec, low 32 bits of word 1 = tv_usec.
     var tv = stack_allocation[2, Int64]()
-    tv[0] = 0
-    tv[1] = 0
+    tv[unsafe_offset=0] = 0
+    tv[unsafe_offset=1] = 0
     var null = UnsafePointer[NoneType, MutUntrackedOrigin](
         unsafe_from_address=Int(0)
     )
-    _ = external_call["gettimeofday", c_int](tv.bitcast[NoneType](), null)
-    var usec = Int(tv[1]) & 0xFFFFFFFF
+    _ = external_call["gettimeofday", c_int](
+        tv.unsafe_bitcast[NoneType](), null
+    )
+    var usec = Int(tv[unsafe_offset=1]) & 0xFFFFFFFF
 
     # localtime_r(const time_t *clock, struct tm *result). struct tm's leading
     # int fields are: tm_sec, tm_min, tm_hour, tm_mday, tm_mon (0-11), tm_year
     # (years since 1900) — indices 0..5 of the Int32 view below.
     var t = stack_allocation[1, Int64]()
-    t[0] = tv[0]
+    t[unsafe_offset=0] = tv[unsafe_offset=0]
     var tm = stack_allocation[16, Int32]()  # 64B — struct tm is ~56B on macOS
     for i in range(16):
-        tm[i] = 0
+        tm[unsafe_offset=i] = 0
     _ = external_call[
         "localtime_r", UnsafePointer[NoneType, MutUntrackedOrigin]
-    ](t.bitcast[NoneType](), tm.bitcast[NoneType]())
-    var sec = Int(tm[0])
-    var minute = Int(tm[1])
-    var hour = Int(tm[2])
-    var day = Int(tm[3])
-    var month = Int(tm[4]) + 1  # tm_mon is 0-based
-    var year = Int(tm[5]) + 1900  # tm_year is years since 1900
+    ](t.unsafe_bitcast[NoneType](), tm.unsafe_bitcast[NoneType]())
+    var sec = Int(tm[unsafe_offset=0])
+    var minute = Int(tm[unsafe_offset=1])
+    var hour = Int(tm[unsafe_offset=2])
+    var day = Int(tm[unsafe_offset=3])
+    var month = Int(tm[unsafe_offset=4]) + 1  # tm_mon is 0-based
+    var year = Int(tm[unsafe_offset=5]) + 1900  # tm_year is years since 1900
     return (
         String(year)
         + "-"
