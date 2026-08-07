@@ -38,9 +38,7 @@ def timestamp() -> String:
     var tv = stack_allocation[2, Int64]()
     tv[unsafe_offset=0] = 0
     tv[unsafe_offset=1] = 0
-    var null = UnsafePointer[NoneType, MutUntrackedOrigin](
-        unsafe_from_address=Int(0)
-    )
+    var null = Pointer[NoneType, MutUntrackedOrigin](unsafe_from_address=Int(0))
     _ = external_call["gettimeofday", c_int](
         tv.unsafe_bitcast[NoneType](), null
     )
@@ -54,9 +52,9 @@ def timestamp() -> String:
     var tm = stack_allocation[16, Int32]()  # 64B — struct tm is ~56B on macOS
     for i in range(16):
         tm[unsafe_offset=i] = 0
-    _ = external_call[
-        "localtime_r", UnsafePointer[NoneType, MutUntrackedOrigin]
-    ](t.unsafe_bitcast[NoneType](), tm.unsafe_bitcast[NoneType]())
+    _ = external_call["localtime_r", Pointer[NoneType, MutUntrackedOrigin]](
+        t.unsafe_bitcast[NoneType](), tm.unsafe_bitcast[NoneType]()
+    )
     var sec = Int(tm[unsafe_offset=0])
     var minute = Int(tm[unsafe_offset=1])
     var hour = Int(tm[unsafe_offset=2])
