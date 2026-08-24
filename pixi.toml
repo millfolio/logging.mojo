@@ -1,10 +1,11 @@
 [workspace]
 name = "logging"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Marius S <marius@seritan.net>"]
 description = "Timestamped log lines for Mojo, stamped at the moment of the call — the log file itself carries [HH:MM:SS.mmm] prefixes, with no tail-time filter."
 # Org nightly — matches the other millfolio Mojo libs so it resolves via `-I`
 # against the same toolchain.
+preview = ["pixi-build"]
 channels = [
     "https://conda.modular.com/max-nightly",
     "conda-forge",
@@ -18,3 +19,24 @@ mojo = "==1.0.0"
 # Pure Mojo + libc FFI (gettimeofday/localtime_r), no extra deps — consumers
 # just `-I ../logging.mojo/src`.
 test = { cmd = "mkdir -p build && mojo build test/logging_test.mojo -I src -o build/logging-test && ./build/logging-test" }
+
+# ── pixi-build: consumable as a pixi source dependency ──────────────────────
+[package]
+name = "logging"
+version = "0.1.1"
+
+[package.build]
+backend = { name = "pixi-build-mojo", version = "0.*" }
+
+[package.build.config.pkg]
+path = "src/logging"
+name = "logging"
+
+[package.host-dependencies]
+mojo-compiler = "==1.0.0"
+
+[package.build-dependencies]
+mojo-compiler = "==1.0.0"
+
+[package.run-dependencies]
+mojo-compiler = "==1.0.0"
