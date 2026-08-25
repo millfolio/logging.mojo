@@ -1,5 +1,5 @@
 name = "logging"
-version = "0.1.1"
+version = "0.1.2"
 description = "Timestamped log lines for Mojo, stamped at the moment of the call"
 tags = ["logging"]
 # other tins this one depends on; omit if none
