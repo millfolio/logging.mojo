@@ -1,5 +1,7 @@
 # logging.mojo
 
+[![mojoshelf](https://mojoshelf.org/badge/logging.svg)](https://mojoshelf.org/tins/logging) [![mojo nightly](https://mojoshelf.org/badge/logging/nightly.svg)](https://mojoshelf.org/tins/logging)
+
 > 💬 **Community:** questions, ideas, and show-and-tell live in [GitHub Discussions](https://github.com/millfolio/millfolio/discussions).
 
 Timestamped log lines for Mojo, **stamped at the moment of the call**.
@@ -31,6 +33,18 @@ Pure Mojo + libc, no extra dependencies. Consumers just add the include path:
 ```
 mojo build your.mojo -I ../logging.mojo/src
 ```
+
+## Install as a mojoshelf tin
+
+Published on [mojoshelf](https://mojoshelf.org/tins/logging) as `logging`:
+
+```sh
+pixi shelf add logging     # pixi mode (git source dependency)
+shelf add logging          # or as a git submodule
+```
+
+Maintainers release new versions with `shelf publish` from the repo root
+(see [getting started](https://mojoshelf.org/getting-started)).
 
 ## Test
 
